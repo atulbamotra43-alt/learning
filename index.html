@@ -416,6 +416,15 @@
 
       saveExpenses();
       updateSummary();
-      ren
+      renderExpenses();
+    }
+
+    // Filter expenses as the user searches
+    searchInput.addEventListener("input", renderExpenses);
+
+    // Initialize the page
+    updateSummary();
+    renderExpenses();
+  </script>
 </body>
 </html>
