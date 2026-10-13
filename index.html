@@ -83,16 +83,57 @@
       font-size: 14px;
     }
 
+    app-button {
+      display: block;
+    }
+
+    .button-component {
+      width: 100%;
+      padding: 12px;
+      border: 0;
+      border-radius: 6px;
+      font: inherit;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background-color 0.15s ease, transform 0.15s ease;
+    }
+
+    .button-component:hover {
+      filter: brightness(0.96);
+    }
+
+    .button-component:active {
+      transform: translateY(1px);
+    }
+
+    .button-component:focus-visible {
+      outline: 3px solid #93c5fd;
+      outline-offset: 2px;
+    }
+
+    .button-component:disabled {
+      cursor: not-allowed;
+      opacity: 0.6;
+    }
+
+    .button-component.primary {
+      background: #2563eb;
+      color: white;
+    }
+
+    .button-component.danger {
+      width: auto;
+      padding: 8px 12px;
+      background: #fee2e2;
+      color: #b91c1c;
+    }
+
     button {
       cursor: pointer;
-      border: none;
-      font-weight: bold;
     }
 
     .add-btn {
       margin-top: 12px;
-      background: #2563eb;
-      color: white;
     }
 
     .search {
@@ -132,13 +173,6 @@
       font-weight: bold;
       margin-bottom: 8px;
       text-align: right;
-    }
-
-    .delete-btn {
-      background: #fee2e2;
-      color: #b91c1c;
-      width: auto;
-      padding: 8px 12px;
     }
 
     .empty {
@@ -214,7 +248,9 @@
           <input type="date" id="date" required>
         </div>
 
-        <button class="add-btn" type="submit">Add Expense</button>
+        <app-button class="add-btn" variant="primary" type="submit">
+          Add Expense
+        </app-button>
       </form>
     </section>
 
@@ -233,6 +269,29 @@
   </main>
 
   <script>
+    // Reusable button component. It keeps button behavior native while
+    // allowing each instance to choose a visual variant through attributes.
+    class AppButton extends HTMLElement {
+      connectedCallback() {
+        if (this.querySelector("button")) {
+          return;
+        }
+
+        const button = document.createElement("button");
+        const label = this.textContent.trim();
+
+        button.className = "button-component " +
+          (this.getAttribute("variant") || "primary");
+        button.type = this.getAttribute("type") || "button";
+        button.disabled = this.hasAttribute("disabled");
+        button.textContent = label;
+
+        this.replaceChildren(button);
+      }
+    }
+
+    customElements.define("app-button", AppButton);
+
     const form = document.getElementById("expenseForm");
     const titleInput = document.getElementById("title");
     const amountInput = document.getElementById("amount");
@@ -343,13 +402,10 @@
           makeElement("p", formatMoney(expense.amount), "amount")
         );
 
-        const deleteButton = makeElement(
-          "button",
-          "Delete",
-          "delete-btn"
-        );
-
-        deleteButton.type = "button";
+        const deleteButton = document.createElement("app-button");
+        deleteButton.setAttribute("variant", "danger");
+        deleteButton.setAttribute("type", "button");
+        deleteButton.textContent = "Delete";
 
         deleteButton.addEventListener("click", function() {
           deleteExpense(expense.id);
@@ -403,7 +459,16 @@
     });
 
     // Delete expense
-   
+    function deleteExpense(id) {
+      expenses = expenses.filter(function(expense) {
+        return expense.id !== id;
+      });
+
+      saveExpenses();
+      updateSummary();
+      renderExpenses();
+    }
+
 
     // Filter expenses as the user searches
     searchInput.addEventListener("input", renderExpenses);
