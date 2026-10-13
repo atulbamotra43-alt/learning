@@ -403,21 +403,7 @@
     });
 
     // Delete expense
-    function deleteExpense(id) {
-      const confirmed = confirm(
-        "Do you want to delete this expense?"
-      );
-
-      if (!confirmed) return;
-
-      expenses = expenses.filter(function(expense) {
-        return expense.id !== id;
-      });
-
-      saveExpenses();
-      updateSummary();
-      renderExpenses();
-    }
+   
 
     // Filter expenses as the user searches
     searchInput.addEventListener("input", renderExpenses);
